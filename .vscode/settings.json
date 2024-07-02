@@ -1,0 +1,10 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/lastek/Dev/cs370/hw5",
+            "binaryPath": "/home/lastek/Dev/cs370/hw5/Scheduler",
+            "binaryArgs": []
+        }
+    ],
+ "makefile.defaultLaunchConfiguration.stopAtEntry": "true" 
+}

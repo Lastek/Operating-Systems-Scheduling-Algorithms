@@ -1,4 +1,4 @@
-#ifndef __TYPES_
+#ifndef __TYPES_H
 #define __TYPES_H
 typedef struct process_data_s
 {

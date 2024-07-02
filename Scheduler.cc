@@ -6,8 +6,11 @@
 #include <vector>
 #include <sstream>
 #include <queue>
-#include "Scheduler.h"
 #include <algorithm>
+
+#include "Scheduler.h"
+#include "types.h"
+#include "pump.h"
 
 using std::cout;
 using std::endl;
@@ -15,94 +18,10 @@ using std::printf;
 using std::string;
 
 void scheduler_fcfs(const std::vector<proc_data_t> &proc_store);
-std::vector<proc_data_t> lazysort_vec(const std::vector<proc_data_t> &v);
 /**
  * Usage: Call check() then retrieveProcesses() if check returned a number > 0
  *  Call advance() to clear the process queue and advance to next timestep
  */
-class ProcessPump
-{
-private:
-    std::vector<proc_data_t> processes; // the complete file
-    std::vector<proc_data_t>::const_iterator iter;
-    std::vector<proc_data_t>::const_iterator iter_end;
-    std::queue<proc_data_t> que; // to do
-    int offset = 0;
-    int time = 0;
-    int loc = 0;
-    int list_exhausted = 0;
-
-    // check what processes have come in at this time
-    //  add them to the queue
-    int queueProcesses()
-    {
-        // Recursion guard clause
-        if (list_exhausted)
-            return 0; // could return -1
-
-        if (time == (*iter).arrival_time)
-        {
-            // Last element
-            if (iter == iter_end)
-            {
-                list_exhausted = 1;
-            }
-            que.push(*iter); // Push an item to the queue
-            ++iter;
-            queueProcesses();
-        }
-        return que.size();
-    }
-
-public:
-    ProcessPump(const std::vector<proc_data_t> &sorted_vec)
-    {
-        processes = sorted_vec; // Make a copy
-        iter = processes.cbegin();
-        iter_end = processes.cend() - 1;
-        time = 0;
-    }
-    ~ProcessPump()
-    {
-    }
-
-    // ### Are there processes ready?
-    // -1 if processes have been exhausted
-    // 0 if nothing available at this time
-    // int > 0 if something was queued up
-    //
-    int check()
-    {
-        if (list_exhausted == 1)
-            return -1;
-        else
-        {
-            int check = queueProcesses();
-            return check;
-        }
-    }
-    std::queue<proc_data_t> retrieveProcesses()
-    {
-        return que;
-    }
-
-    // Call once per tick
-    // This will clear the queue
-    void advance()
-    {
-        if (list_exhausted)
-            return;
-        while (!que.empty())
-        {
-            que.pop();
-        }
-        time++;
-    }
-    
-    // ProcessPump operator++(){
-    //     advance();
-    // }
-};
 void benchmark_results(bench_result_t &actual, bench_result_t &expected)
 {
     // proc_data_t pdt;
@@ -135,11 +54,16 @@ void benchmark_results(bench_result_t &actual, bench_result_t &expected)
     cout << s << endl;
     // if()
 }
-
-int main()
+int main(int argv, char **argc)
 {
+    if (argv != 2)
+    {
+        cout << "Please supply a csv file." << endl;
+        return 1;
+    }
+    std::string file = argc[1];
     std::ifstream fin;
-    fin.open("sample_data.csv");
+    fin.open(file);
 
     if (!fin)
     {
@@ -170,9 +94,6 @@ int main()
     }
     fin.close();
 
-    int tick = 0;
-    tick = 1;
-    cout << "ignore" << tick << endl;
     // std::vector<proc_data_t> sorted = lazysort_vec(proc_store);
     proc_store = lazysort_vec(proc_store);
     // Data has been sorted by time
@@ -200,42 +121,54 @@ void scheduler_fcfs(const std::vector<proc_data_t> &proc_store)
     std::vector<proc_data_t>::const_iterator iter_end = proc_store.end() - 1;
 
     ProcessPump pump(proc_store);
-
     int tick = 0;
+    int waiting = 0;
+    int n_pump = 0;
     do
     {
-        tick++;
-        if (tick > 10)
+        n_pump = pump.check();
+        if (n_pump > 0)
         {
-            cout << "Error" << endl;
-            break;
-        }
-    } while (iter != proc_store.cend());
-    test_fcfs_queue(que);
-    // print test
-}
-
-// sort by arrival time
-std::vector<proc_data_t> lazysort_vec(const std::vector<proc_data_t> &v)
-{
-    std::vector<proc_data_t> sorted;
-    int i = 0;
-    int max = 0;
-    for (auto &x : v)
-    {
-        if (max < x.arrival_time)
-            max = x.arrival_time;
-    }
-    while (i <= max)
-    {
-        for (auto &x : v)
-        {
-            if (x.arrival_time == i)
+            auto items = pump.retrieveProcesses();
+            while (!items.empty())
             {
-                sorted.push_back(x);
+                que.push(items.front());
+                items.pop();
             }
         }
-        i++;
-    }
-    return sorted;
+        // There are processes waiting
+        if (que.size() > 1)
+        {
+            waiting += (que.size() - 1);
+        }
+        // Let process do "work"
+        int *cd = &que.front().burst_time;
+        (*cd)--; // The "work"
+
+        // Process has done all its work so remove it from queue
+        if (*cd == 0)
+        {
+            cd = nullptr;
+            que.pop();
+        }
+        
+        pump.advance();
+        tick++;
+        
+        // Nothing left in queue and no more processes arriving
+        if (que.empty() && n_pump == -1)
+        {
+            break;
+        }
+    } while (true);
+    double w = waiting;
+    double p = proc_store.size();
+    double t = tick;
+    cout << "wait time: " << w << endl
+         << "ticks:     " << t << endl
+         << "avg wait time:  " << w / p << endl
+         << "avg turnaround: " << (w + t) / p << endl
+         << "throughput:     " << (p / t) << endl;
+    test_fcfs_queue(que);
+    // print test
 }
