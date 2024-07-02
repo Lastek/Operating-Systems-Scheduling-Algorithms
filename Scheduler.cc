@@ -159,11 +159,6 @@ int main()
                     &pdt.burst_time,
                     &pdt.priority);
         proc_store.push_back(pdt);
-        // cout << "=================\nLine: " << line << endl;
-        // cout << "PID: " << pdt.pid
-        //      << ", Arrival Time: " << pdt.arrival_time
-        //      << ", Burst Time: " << pdt.burst_time
-        //      << ", Priority: " << pdt.priority << endl;
     }
 
     for (const proc_data_t &pdt : proc_store)
@@ -190,14 +185,6 @@ int main()
              << ", Burst Time: " << pdt.burst_time
              << ", Priority: " << pdt.priority << endl;
     }
-    // do
-    // {
-    //     printf("tick %i\n", tick);
-    //     printf("%i\n", iter->pid);
-    //     iter = proc_store.erase(iter);
-
-    //     tick++;
-    // } while (tick++);
 
     cout << proc_store.empty() << endl;
     cout << "========================" << endl;
@@ -214,12 +201,6 @@ void scheduler_fcfs(const std::vector<proc_data_t> &proc_store)
 
     ProcessPump pump(proc_store);
 
-    // int max = 0;
-    // for (auto &x : proc_store)
-    // {
-    //     if (max < x.arrival_time)
-    //         max = x.arrival_time;
-    // }
     int tick = 0;
     do
     {
