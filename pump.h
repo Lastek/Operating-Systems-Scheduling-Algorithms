@@ -5,7 +5,7 @@
 class ProcessPump
 {
 private:
-    std::vector<proc_data_t> processes; // the complete file
+    std::vector<proc_data_t> processes; 
     std::vector<proc_data_t>::const_iterator iter;
     std::vector<proc_data_t>::const_iterator iter_end;
     std::queue<proc_data_t> que;
@@ -37,6 +37,8 @@ private:
     }
 
 public:
+    /// @brief Constructor
+    /// @param sorted_vec sorted vector of processes
     ProcessPump(const std::vector<proc_data_t> &sorted_vec)
     {
         processes = sorted_vec; // Make a copy
@@ -44,12 +46,11 @@ public:
         iter_end = processes.cend() - 1;
         time = 0;
     }
-
-    // ### Are there processes ready?
-    // -1 if processes have been exhausted
-    // 0 if nothing available at this time
-    // int > 0 if something was queued up
-    //
+    
+    /// @brief ### Are there processes ready?
+    /// @returns -1 if processes have been exhausted |
+    /// @returns 0 if nothing available |
+    /// @returns > 0 if there are processes waititing 
     int check()
     {
         if (list_exhausted == 1)
@@ -60,6 +61,8 @@ public:
             return check;
         }
     }
+    /// @brief Return processes waiting to be scheduled
+    /// @return std::queue<proc_data_t>
     std::queue<proc_data_t> retrieveProcesses()
     {
         return que;

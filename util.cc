@@ -1,3 +1,4 @@
+#include <iomanip>
 #include "util.h"
 /**
  * return 1 if match, 0 otherwise
@@ -39,4 +40,37 @@ std::vector<proc_data_t> lazysort_vec(const std::vector<proc_data_t> &v)
         i++;
     }
     return sorted;
+}
+
+void benchmark_results(bench_result_t &actual, bench_result_t &expected)
+{
+    // proc_data_t pdt;
+    using std::cout;
+    using std::endl;
+    using std::string;
+    string s;
+    bench_result_t *a;
+    bench_result_t *e;
+    a = &actual;
+    e = &expected;
+    std::cout.precision(3);
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+
+        s = "DOES NOT MATCH EXPECTED";
+    cout << "Average Turnaround Time: " << a->avg_turn << endl;
+    if (double_cmp(a->avg_turn, e->avg_turn))
+        s = "MATCHES EXPECTED";
+    cout << s << endl;
+
+    s = "DOES NOT MATCH EXPECTED";
+    cout << "Average Waiting Time: " << a->avg_wait << endl;
+    if (double_cmp(a->avg_wait, e->avg_wait))
+        s = "MATCHES EXPECTED";
+    cout << s << endl;
+
+    s = "DOES NOT MATCH EXPECTED";
+    cout << "Throughput: " << a->thru << endl;
+    if (double_cmp(a->thru, e->thru))
+        s = "MATCHES EXPECTED";
+    cout << s << endl;
 }

@@ -18,8 +18,11 @@ enum PROC_DATA_ENUM
 
 typedef struct bench_result_s
 {
-    double avg_turn;
-    double avg_wait;
-    double thru;
+    double n_processes; // Total number of processes handled
+    double total_wait;  // Sum total each process spent waiting
+    double time;        // How many ticks to complete
+    double avg_turn;    // Average turnaround time: (total_wait + time) / n_processes
+    double avg_wait;    // Average waiting time: total_wait / n_processes
+    double thru;        // Throughput: n_processes / time
 } bench_result_t;
 #endif
