@@ -1,3 +1,8 @@
+/*
+	Author: Gabriel Bertasius
+	Implemented for CSC 161 Data Structures in C++
+	2019 Spring
+*/
 #include <algorithm> // Provides swap
 
 void quicksort(int data[], size_t n);

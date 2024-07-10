@@ -1,12 +1,14 @@
+/**
+ * Author: Gabriel Bertasius
+ * Created: 2024 June 
+ */
 #include <iostream>
-// #include <cmath>
 #include <fstream>
-// #include <cstdio>
 #include <string>
 #include <vector>
-// #include <sstream>
 #include <queue>
 #include <list>
+#include <cmath>
 
 #include "Scheduler.h"
 #include "types.h"
