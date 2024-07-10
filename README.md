@@ -13,7 +13,7 @@ This package includes implementations of three scheduling algorithms:
 - SJF: Shortest Job First
 - Priority: Highest priority job first
 
-###Included files:
+### Included files:
 - Scheduler.cc [Contains the main entry and scheduler algorithms]
 - Scheduler.h [header]
 - pump.h [ProcessorPump class implementation] 
@@ -23,29 +23,29 @@ This package includes implementations of three scheduling algorithms:
 - Makefile [Used for compilation]
 - README.txt [This file]
 
-####Debugging:
+#### Debugging:
 - debug.h
 - debug.cc
 
-####Misc files:
+#### Misc files:
 - quick.cc [Quicksort implementations. Not in use currently.]
 
-###To compile:
+### To compile:
 make:
     make
 cmake:
     cmake <path_to_sauce>
 
-###Debugging:
+### Debugging:
 make:
     make DEBUG_SCHED=1
 cmake:
     cmake DEBUG_SCHED=ON <path_to_sauce>
 
-###To run:
+### To run:
     ./Scheduler file.csv 
 
-###Note: 
+### Note: 
     make DEUBG_SCHED=1 requires debug.cc & debug.h which are not included in this package.
     
     csv file must be in the following format:
