@@ -16,4 +16,5 @@ void test_fcfs_queue(const std::queue<proc_data_t> &q)
              << ", Priority: " << copy.front().priority << endl;
         copy.pop();
     }
+    cout << "END TEST" << endl;
 }

@@ -4,17 +4,26 @@
 # your actual first and last name.
 
 CXX=g++
-# CXXFLAGS=-Wall -Wextra -Wpedantic -Werror -Wfatal-errors -Winit-self -Wshadow -Wlogical-op -Wcomment -Wctor-dtor-privacy -Wold-style-cast -D_GLIBCXX_DEBUG -fno-diagnostics-show-option
-CXXFLAGS=-g -O0
+CXXFLAGS=-Wall -Wextra -Wpedantic -Werror -Wfatal-errors -Winit-self -Wshadow -Wlogical-op -Wcomment -Wctor-dtor-privacy -Wold-style-cast -D_GLIBCXX_DEBUG -fno-diagnostics-show-option
+# CXXFLAGS=-g -O0
 
-FILES=Scheduler.cc util.cc debug.cc 
+BASE_FILES=Scheduler.cc util.cc 
+DEBUG_FILES=debug.cc
 OUT_EXE = Scheduler 
+HEADERS=Scheduler.h util.h pump.h types.h
+
+ifdef DEBUG_SCHED
+    FILES=$(BASE_FILES) $(DEBUG_FILE)
+    CXXFLAGS += -DDEBUG_SCHED
+else
+    FILES=$(BASE_FILES)
+endif
 
 all: $(FILES)
 	$(CXX) $(CXXFLAGS) -o $(OUT_EXE) $(FILES)
+
 clean:
 	rm -f *.o $(OUT_EXE) *.zip
-run:
-	 ./$(OUT_EXE) sample_data.csv
+
 package:
-	zip LastName-FirstName-HW5.zip README.txt Makefile Scheduler.cc
+	zip Bertasius-Gabriel-HW5.zip README.txt Makefile $(FILES) $(HEADERS)

@@ -17,8 +17,6 @@ using std::endl;
 using std::printf;
 using std::string;
 
-#define DEBUG_SCHED
-
 int main(int argv, char **argc)
 {
     if (argv != 2)
@@ -41,7 +39,7 @@ int main(int argv, char **argc)
     fin.seekg(0, fin.end);
     int len = fin.tellg() / 8;
     fin.seekg(0, fin.beg);
-    cout << "file len: " << len << endl;
+    // cout << "file len: " << len << endl;
     proc_store.reserve(len + 10); // some extra just in case
                                   //
     // Read file and store data in vector
@@ -85,16 +83,21 @@ int main(int argv, char **argc)
     cout << "========================" << endl;
     cout << "BEGIN SCHEDULER" << endl;
 #endif
+
+    cout << "--- FCFS ---" << endl;
     scheduler_fcfs(proc_store);
+
+    cout << "--- SJFP ---" << endl;
     scheduler_sjfp(proc_store);
+
+    cout << "--- Priority ---" << endl;
+    scheduler_priority(proc_store);
     return 0;
 }
 
 void scheduler_fcfs(const std::vector<proc_data_t> &proc_store)
 {
     std::queue<proc_data_t> que;
-    std::vector<proc_data_t>::const_iterator iter = proc_store.begin();
-    std::vector<proc_data_t>::const_iterator iter_end = proc_store.end() - 1;
 
     ProcessPump pump(proc_store);
     int tick = 0;
@@ -117,25 +120,27 @@ void scheduler_fcfs(const std::vector<proc_data_t> &proc_store)
         {
             waiting += (que.size() - 1);
         }
-        // Let process do "work"
-        int *cd = &que.front().burst_time;
-        (*cd)--; // The "work"
-
-        // Process has done all its work so remove it from queue
-        if (*cd == 0)
+        if (!que.empty())
         {
-            cd = nullptr;
-            que.pop();
+            // Let process do "work"
+            int *cd = &que.front().burst_time;
+            (*cd)--; // The "work"
+
+            // Process has done all its work so remove it from queue
+            if (*cd == 0)
+            {
+                cd = nullptr;
+                que.pop();
+            }
         }
 
+        // Advance time
         pump.advance();
         ++tick;
 
         // Nothing left in queue and no more processes arriving
         if (que.empty() && n_pump == -1)
-        {
             break;
-        }
     } while (true);
 
     double processes = proc_store.size();
@@ -148,13 +153,12 @@ void scheduler_fcfs(const std::vector<proc_data_t> &proc_store)
         waiting / processes,
         processes / tick};
 
-    bench_result_t expected = {0.0, 0.0, 0.0, 1098.400, 1075.100, 0.043};
-
-    benchmark_results(results, expected);
 #ifdef DEBUG_SCHED
-    test_fcfs_queue(que);
+    bench_result_t expected = {0.0, 0.0, 0.0, 1098.400, 1075.100, 0.043};
+    benchmark_results_debug(results, expected);
+#else
+    benchmark_results_release(results);
 #endif
-    // print test
 }
 
 void scheduler_sjfp(const std::vector<proc_data_t> &proc_store)
@@ -189,30 +193,33 @@ void scheduler_sjfp(const std::vector<proc_data_t> &proc_store)
                 items.pop();
             }
         }
-        // There are processes waiting
         if (que.size() > 1)
         {
             waiting += (que.size() - 1);
         }
-        // Let process do "work"
-        int *cd = &que.front().burst_time;
-        (*cd)--; // The "work"
 
-        // Process has done all its work so remove it from queue
-        if (*cd == 0)
+        // There are processes waiting
+        if (!que.empty())
         {
-            cd = nullptr;
-            que.erase(que.begin());
+            // Let process do "work"
+            int *cd = &que.front().burst_time;
+            (*cd)--; // The "work"
+
+            // Process has done all its work so remove it from queue
+            if (*cd == 0)
+            {
+                cd = nullptr;
+                que.erase(que.begin());
+            }
         }
 
+        // Advance time
         pump.advance();
         ++tick;
 
         // Nothing left in queue and no more processes arriving
         if (que.empty() && n_pump == -1)
-        {
             break;
-        }
     } while (true);
 
     double processes = proc_store.size();
@@ -229,9 +236,95 @@ void scheduler_sjfp(const std::vector<proc_data_t> &proc_store)
     // Average Turnaround Time: 692.190
     // Average Waiting Time: 668.890
     // Throughput: 0.043
-    bench_result_t expected = {0.0, 0.0, 0.0, 692.190, 668.890, 0.043};
 
-    benchmark_results(results, expected);
-    // test_sjfp
-    // print test
+#ifdef DEBUG_SCHED
+    bench_result_t expected = {0.0, 0.0, 0.0, 692.190, 668.890, 0.043};
+    benchmark_results_debug(results, expected);
+#else
+    benchmark_results_release(results);
+#endif
+}
+
+void scheduler_priority(const std::vector<proc_data_t> &proc_store)
+{
+    std::list<proc_data_t> que;
+
+    ProcessPump pump(proc_store);
+    int tick = 0;
+    int waiting = 0;
+    int n_pump = 0;
+    do
+    {
+        n_pump = pump.check();
+        if (n_pump > 0)
+        {
+            auto items = pump.retrieveProcesses();
+            while (!items.empty())
+            {
+                int new_priority = items.front().priority;
+                bool found = 0; // is there any place we could insert an item?
+                for (auto iter = que.begin(); iter != que.end(); ++iter)
+                {
+                    if (new_priority < iter->priority)
+                    {
+                        que.insert(iter, items.front());
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    que.push_back(items.front());
+                items.pop();
+            }
+        }
+        // There are processes waiting
+        if (que.size() > 1)
+        {
+            waiting += (que.size() - 1);
+        }
+        if (!que.empty())
+        {
+            // Let process do "work"
+            int *cd = &que.front().burst_time;
+            (*cd)--; // The "work"
+
+            // Process has done all its work so remove it from queue
+            if (*cd == 0)
+            {
+                cd = nullptr;
+                que.erase(que.begin());
+            }
+        }
+
+        // Advance time
+        pump.advance();
+        ++tick;
+
+        // Nothing left in queue and no more processes arriving
+        if (que.empty() && n_pump == -1)
+            break;
+
+    } while (true);
+
+    double processes = proc_store.size();
+    double time = tick;
+    bench_result_t results = {
+        processes,
+        static_cast<double>(waiting),
+        time,
+        (waiting + tick) / processes,
+        waiting / processes,
+        processes / tick};
+
+    // --- Priority ---
+    // Average Turnaround Time: 1036.090
+    // Average Waiting Time: 1012.790
+    // Throughput: 0.043
+
+#ifdef DEBUG_SCHED
+    bench_result_t expected = {0.0, 0.0, 0.0, 1036.090, 1012.790, 0.043};
+    benchmark_results_debug(results, expected);
+#else
+    benchmark_results_release(results);
+#endif
 }

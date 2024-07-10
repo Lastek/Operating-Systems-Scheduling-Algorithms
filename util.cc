@@ -41,8 +41,24 @@ std::vector<proc_data_t> lazysort_vec(const std::vector<proc_data_t> &v)
     }
     return sorted;
 }
+void benchmark_results_release(bench_result_t &actual)
+{
+    // proc_data_t pdt;
+    using std::cout;
+    using std::endl;
+    bench_result_t *a;
+    a = &actual;
+    std::cout.precision(3);
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
 
-void benchmark_results(bench_result_t &actual, bench_result_t &expected)
+    cout << "Average Turnaround Time: " << a->avg_turn << endl;
+
+    cout << "Average Waiting Time: " << a->avg_wait << endl;
+
+    cout << "Throughput: " << a->thru << endl;
+}
+
+void benchmark_results_debug(bench_result_t &actual, bench_result_t &expected)
 {
     // proc_data_t pdt;
     using std::cout;
@@ -56,7 +72,7 @@ void benchmark_results(bench_result_t &actual, bench_result_t &expected)
     std::cout.precision(3);
     std::cout.setf(std::ios::fixed, std::ios::floatfield);
 
-        s = "DOES NOT MATCH EXPECTED";
+    s = "DOES NOT MATCH EXPECTED";
     cout << "Average Turnaround Time: " << a->avg_turn << endl;
     if (double_cmp(a->avg_turn, e->avg_turn))
         s = "MATCHES EXPECTED";
