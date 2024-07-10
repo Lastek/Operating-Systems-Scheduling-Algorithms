@@ -1,0 +1,42 @@
+--- FCFS ---
+Average Turnaround Time: 1098.400
+Average Waiting Time: 1075.100
+Throughput: 0.043
+
+--- SJFP ---
+Average Turnaround Time: 692.190
+Average Waiting Time: 668.890
+Throughput: 0.043
+
+--- Priority ---
+Average Turnaround Time: 1036.090
+Average Waiting Time: 1012.790
+Throughput: 0.043
+
+
+Note: Your Priority and SJFP output *might* vary slightly due to how you're breaking ties between equal priorities and remaining burst times respectively. 
+
+Here's an easy sample input for FCFS to verify by hand:
+
+1,0,3,5
+2,2,4,2
+3,3,1,3
+4,8,3,4
+5,10,4,1
+
+You should be getting this output:
+
+--- FCFS ---
+Average Turnaround Time: 4.200
+Average Waiting Time: 1.200
+Throughput: 0.333
+
+--- SJFP ---
+Average Turnaround Time: 3.600
+Average Waiting Time: 0.600
+Throughput: 0.333
+
+--- Priority ---
+Average Turnaround Time: 5.400
+Average Waiting Time: 2.400
+Throughput: 0.333
