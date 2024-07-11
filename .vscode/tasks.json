@@ -10,6 +10,7 @@
                 "-O0",
                 "-std=c++17",
                 "-Wall",
+                "-DDEBUG_SCHED",
                "Scheduler.cc",
                "debug.cc",
                "util.cc", 

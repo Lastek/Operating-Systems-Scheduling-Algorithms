@@ -1,6 +1,6 @@
 /**
  * Author: Gabriel Bertasius
- * Created: 2024 June 
+ * Created: 2024 June
  */
 #include <iostream>
 #include <fstream>
@@ -72,16 +72,7 @@ int main(int argv, char **argc)
     proc_store = lazysort_vec(proc_store);
     // Data has been sorted by time
 #ifdef DEBUG_SCHED
-    for (auto &pdt : proc_store)
-    {
-
-        cout << "PID: " << pdt.pid
-             << ", Arrival Time: " << pdt.arrival_time
-             << ", Burst Time: " << pdt.burst_time
-             << ", Priority: " << pdt.priority << endl;
-    }
-
-    cout << proc_store.empty() << endl;
+    print_vector(proc_store, 0);
     cout << "========================" << endl;
     cout << "BEGIN SCHEDULER" << endl;
 #endif
@@ -124,6 +115,10 @@ void scheduler_fcfs(const std::vector<proc_data_t> &proc_store)
         }
         if (!que.empty())
         {
+#ifdef DEBUG_SCHED
+            // check that queue is really sorted
+            check_queue_sorted(que);
+#endif
             // Let process do "work"
             int *cd = &que.front().burst_time;
             (*cd)--; // The "work"
@@ -203,6 +198,9 @@ void scheduler_sjfp(const std::vector<proc_data_t> &proc_store)
         // There are processes waiting
         if (!que.empty())
         {
+#ifdef DEBUG_SCHED
+     check_list_sorted(que, 1);
+#endif
             // Let process do "work"
             int *cd = &que.front().burst_time;
             (*cd)--; // The "work"
@@ -286,6 +284,9 @@ void scheduler_priority(const std::vector<proc_data_t> &proc_store)
         }
         if (!que.empty())
         {
+#ifdef DEBUG_SCHED
+     check_list_sorted(que, 2);
+#endif
             // Let process do "work"
             int *cd = &que.front().burst_time;
             (*cd)--; // The "work"

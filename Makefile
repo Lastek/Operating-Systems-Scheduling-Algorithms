@@ -10,7 +10,8 @@ OUT_EXE = Scheduler
 HEADERS=Scheduler.h util.h pump.h types.h
 
 ifdef DEBUG_SCHED
-    FILES=$(BASE_FILES) $(DEBUG_FILE)
+    FILES=$(BASE_FILES) $(DEBUG_FILES)
+	HEADERS=$(HEADERS) debug.h
     CXXFLAGS += -DDEBUG_SCHED
 else
     FILES=$(BASE_FILES)
@@ -21,6 +22,9 @@ all: $(FILES)
 
 clean:
 	rm -f *.o $(OUT_EXE) *.zip
+	
+run:
+	./Scheduler proc_data.csv
 
 package:
 	zip package.zip README.txt Makefile $(FILES) $(HEADERS)

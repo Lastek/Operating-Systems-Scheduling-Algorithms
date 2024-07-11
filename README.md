@@ -33,12 +33,14 @@ This package includes implementations of three scheduling algorithms:
 ### To compile:
 make:
     make
+
 cmake:
     cmake <path_to_sauce>
 
 ### Debugging:
 make:
     make DEBUG_SCHED=1
+    
 cmake:
     cmake DEBUG_SCHED=ON <path_to_sauce>
 
